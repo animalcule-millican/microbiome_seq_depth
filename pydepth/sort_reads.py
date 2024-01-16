@@ -27,7 +27,7 @@ def get_file_run_info(input_file):
     bname = os.path.basename(input_file).replace(".fastq.gz", "")
     with gzip.open(input_file, "rt") as handle:
         for record in SeqIO.parse(handle, "fastq"):
-            info_dict[f"{bname}_{record.description}"] = {"basename": bname, "runID": record.id.split(":")[2], "header": record.id, "seq": record.seq, "qual": record.letter_annotations["phred_quality"], "description": record.description}
+            info_dict[f"{bname}_{record.description}"] = {"file": input_file, "basename": bname, "runID": record.id.split(":")[2], "header": record.id, "seq": record.seq, "qual": record.letter_annotations["phred_quality"], "description": record.description}
     return info_dict
 
 
@@ -59,13 +59,13 @@ def sort_runs(input_dict):
     return run_1, run_2, run_3, run_4, run_5, run_6
     
 def write_reads_by_run(input_dict, output_dir, run):
-    with open(f"{output_dir}/{run}.fastq", "w") as handle:
+    with open(f"{output_dir}/{run}/{input_dict[key]["basename"]}-{run}.fastq", "w") as handle:
         for key in input_dict:
             seq_record = SeqRecord(Seq(input_dict[key]["seq"]), id=input_dict[key]["header"], description=input_dict[key]["description"], letter_annotations={"phred_quality": input_dict[key]["qual"]})
             SeqIO.write(seq_record, handle, "fastq")
 
 def generate_combinations(file_directory):
-    items = glob.glob(f"{file_directory}/*.fastq.gz")
+    items = glob.glob(f"{file_directory}/run*")
     #items = ['000000000-KGKJV', '000000000-KGTPY', '000000000-KGK8M', '000000000-KGMFM', '000000000-KGMYV', '000000000-KHNNM']
     count = 0
     combo_dict = {}
@@ -79,10 +79,11 @@ def write_run_combos(combo_dict, dirpath, key):
     cname = f"run_{key}"
     run_file = f"{dirpath}/{key}.fastq.gz"
     for item in combo_dict[key]:
-        file_num = len(item)
+        file_list = glob.glob(f"{item}/*.fastq.gz")
+        file_num = len(glob.glob(f"{item}/*.fastq.gz"))
         with gzip.open(run_file, 'a') as f:
-            for i in range(0, file_num):
-                with gzip.open(combo_dict[key][i], 'rb') as infile:
+            for i in range(0, len(file_list)):
+                with gzip.open(file_list[i], 'rb') as infile:
                     for record in SeqIO.parse(infile, "fastq"):
                         SeqIO.write(record, f, "fastq")
 
@@ -116,6 +117,7 @@ def main():
         executor.map(write_reads_by_run, [run_1, run_2, run_3, run_4, run_5, run_6], [out_dir] * 6, ["run_1", "run_2", "run_3", "run_4", "run_5", "run_6"])
 
     combo_dict = generate_combinations(out_dir)
+    # {output_dir}/{run}
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=24) as executor:
         executor.map(write_run_combos, combo_dict, dirpath, combo_dict.keys())
