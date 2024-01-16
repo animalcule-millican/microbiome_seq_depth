@@ -1,0 +1,14 @@
+request_cpus = 24
+request_memory = 64GB
+executable = /home/glbrc.org/millican/repos/microbiome_seq_depth/pydepth/sort_reads.sh
+arguments = $(target_in) $(target_pkl) $(target_out)
+error = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/sort_reads.$(Cluster)-$(ProcId).err
+log = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/sort_reads.$(Cluster)-$(ProcId).log
+output = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/sort_reads.$(Cluster)-$(ProcId).out
+notification = Always
+notify_user = millican.compute@gmail.com
+batch_name = sort_reads.$(Cluster).$(ProdId)
+queue target_in, target_pkl, target_out from (
+    /home/glbrc.org/millican/projects/scri/data/reads/16S, /home/glbrc.org/millican/repos/microbiome_seq_depth/data/16s_reads.pkl, /home/glbrc.org/millican/repos/microbiome_seq_depth/data/16s/split_runs
+    /home/glbrc.org/millican/projects/scri/data/reads/ITS, /home/glbrc.org/millican/repos/microbiome_seq_depth/data/its_reads.pkl, /home/glbrc.org/millican/repos/microbiome_seq_depth/data/its/split_runs
+)
