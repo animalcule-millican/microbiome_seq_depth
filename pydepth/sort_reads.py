@@ -59,7 +59,7 @@ def sort_runs(input_dict):
     return run_1, run_2, run_3, run_4, run_5, run_6
     
 def write_reads_by_run(input_dict, output_dir, run):
-    with open(f"{output_dir}/{run}/{input_dict[key]["basename"]}-{run}.fastq", "w") as handle:
+    with open(f"{output_dir}/{run}/{input_dict[key]['basename']}-{run}.fastq", "w") as handle:
         for key in input_dict:
             seq_record = SeqRecord(Seq(input_dict[key]["seq"]), id=input_dict[key]["header"], description=input_dict[key]["description"], letter_annotations={"phred_quality": input_dict[key]["qual"]})
             SeqIO.write(seq_record, handle, "fastq")
@@ -93,20 +93,23 @@ def checkdir(path):
 
 def main():
     read_dict = {}
-    in_dir = sys.argv[1]
-    output_pickle = sys.argv[2]
+    input_file = sys.argv[1]
+    taxa = sys.argv[2]
+    input_name = os.path.basename(input_file).replace(".fastq.gz", "")
+    output_pickle = f"/home/glbrc.org/millican/repos/microbiome_seq_depth/data/{taxa}/pkls/{input_name}.pkl"
     out_dir = sys.argv[3]
 
     dirpath = f"{out_dir}/run_combinations"
     checkdir(dirpath)
     checkdir(out_dir)
     
+    read_dict = {}
+    read_dict = get_file_run_info(input_file)
+    #filelist = get_file_list(in_dir)
 
-    filelist = get_file_list(in_dir)
-
-    with concurrent.futures.ProcessPoolExecutor(max_workers=24) as executor:
-        for result in executor.map(get_file_run_info, filelist):
-            read_dict.update(result)
+    #with concurrent.futures.ProcessPoolExecutor(max_workers=24) as executor:
+    #    for result in executor.map(get_file_run_info, filelist):
+    #        read_dict.update(result)
 
     with open(output_pickle, "wb") as handle:
         pickle.dump(read_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -124,3 +127,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+NOTES:    
+    Script keeps running out of memory. 
+        Perhaps refactor code to process one read pair at a time. 
+        Then split into jobs for each read pair. 
+"""

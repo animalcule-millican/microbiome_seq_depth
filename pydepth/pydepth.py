@@ -101,6 +101,7 @@ def split_runs(file_name, sorting, dirpath):
 def parse_args():
     parser = argparse.ArgumentParser(description='Sort fastq files by flowcell and lane')
     parser.add_argument('-i', '--input', help='Input fastq file', required=True)
+    parser.add_argument('-o', '--output', help='Output directory', required=True)
     args = parser.parse_args()
     return args
 

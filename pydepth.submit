@@ -1,5 +1,5 @@
 request_cpus = 24
-request_memory = 64GB
+request_memory = 400GB
 executable = /home/glbrc.org/millican/repos/microbiome_seq_depth/pydepth/sort_reads.sh
 arguments = $(target_in) $(target_pkl) $(target_out)
 error = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/sort_reads.$(Cluster)-$(ProcId).err
