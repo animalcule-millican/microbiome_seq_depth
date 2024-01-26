@@ -1,0 +1,14 @@
+request_cpus = 32
+request_memory = 100GB
+executable = /home/glbrc.org/millican/repos/microbiome_seq_depth/pydepth/split_runs.sh
+arguments = $(target)
+error = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/split_runs_$(target).$(Cluster)-$(ProcId).err
+log = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/split_runs_$(target).$(Cluster)-$(ProcId).log
+output = /home/glbrc.org/millican/repos/microbiome_seq_depth/logs/split_runs_$(target).$(Cluster)-$(ProcId).out
+notification = Always
+notify_user = millican.compute@gmail.com
+batch_name = split_runs.$(Cluster).$(ProdId)
+queue target from (
+    16S
+    ITS
+)
